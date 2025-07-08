@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Pensione</title>
+  <style>
+    :root {
+      --accent: #2e8b57;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 2rem 1.5rem 3rem;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 0;
+      color: var(--accent);
+      font-size: 1.8rem;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input[type="date"] {
+      border: 1px solid #d0d5da;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .counter {
+      margin-top: 2.5rem;
+    }
+    .number {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+      line-height: 1;
+    }
+    .label {
+      font-size: 1.125rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Countdown Pensione</h1>
+
+    <label for="retire">Data di pensionamento:</label>
+    <input type="date" id="retire" value="2026-06-30" />
+
+    <section class="counter" id="totali">
+      <span class="number" id="totalDays"></span>
+      <span class="label" id="totalLabel"></span>
+    </section>
+
+    <section class="counter" id="lavorativi">
+      <span class="number" id="workingDays"></span>
+      <span class="label" id="workingLabel"></span>
+    </section>
+  </main>
+
+  <script>
+    function calc() {
+      const retireInput = document.getElementById('retire');
+      const retireDate = new Date(retireInput.value);
+      if (isNaN(retireDate)) return;
+
+      const today = new Date();
+      today.setHours(0,0,0,0); // normalizza
+
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const totalDays = Math.max(0, Math.ceil((retireDate - today) / msPerDay));
+
+      document.getElementById('totalDays').textContent = totalDays;
+      document.getElementById('totalLabel').textContent = totalDays === 1 ? 'giorno totale residuo' : 'giorni totali residui';
+
+      // Calcolo giorni lavorativi
+      let working = 0;
+      for (let d = new Date(today); d <= retireDate; d.setDate(d.getDate() + 1)) {
+        const wd = d.getDay(); // 0 = domenica, 6 = sabato
+        if (wd !== 0 && wd !== 6) working++;
+      }
+
+      document.getElementById('workingDays').textContent = working;
+      document.getElementById('workingLabel').textContent = working === 1 ? 'giorno lavorativo residuo' : 'giorni lavorativi residui';
+    }
+
+    document.getElementById('retire').addEventListener('change', calc);
+    calc();
+
+    // PWA opzionale
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+  </script>
+</body>
+</html>
